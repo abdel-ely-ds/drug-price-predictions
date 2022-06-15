@@ -27,11 +27,6 @@ from drugs.core.transformers import (
 from drugs.core.transformers.extractors import DescriptionExtractor
 
 
-# Todo merge them
-def _merge_dfs(raw_df: pd.DataFrame, ingredient_df: pd.DataFrame) -> pd.DataFrame:
-    return pd.concat([raw_df, ingredient_df])
-
-
 class Trainer:
     """
     Class responsible for training and inference
