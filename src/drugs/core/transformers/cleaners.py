@@ -24,7 +24,7 @@ class TextCleaner(BaseEstimator, TransformerMixin):
         :return: cleaned version of text
         """
         s_1 = s.lower()
-        s_1 = re.sub(",", ".", s_1)
+        s_1 = re.sub(",", "", s_1)
         s_1 = re.sub(r"[()]", "", s_1)
         return unidecode.unidecode(s_1)
 

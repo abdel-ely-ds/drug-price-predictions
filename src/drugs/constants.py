@@ -1,3 +1,10 @@
+# ARTIFACT RELATED CONSTANTS
+PIPELINE_DIRECTORY = "pipelines"
+MODEL_DIRECTORY = "models"
+PIPELINE_NAME = "pipeline"
+MODEL_NAME = "model"
+
+# DATA RELATED CONSTANTS
 DATES_COLUMNS = ["marketing_declaration_date", "marketing_authorization_date"]
 DESCRIPTION_COLUMN = "description"
 
