@@ -1,4 +1,5 @@
 from typing import List
+
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
@@ -44,5 +45,3 @@ class BinaryEncoder(BaseEstimator, TransformerMixin):
             df_copy[col + "_feature"] = df_copy[col].apply(lambda x: 1 if s in x else 0)
             df_copy.drop(columns=[col], inplace=True)
         return df_copy
-
-

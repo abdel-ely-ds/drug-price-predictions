@@ -1,11 +1,11 @@
+import re
+from typing import List
+
 import pandas as pd
 import unidecode
-import re
-
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from drugs.constants import DATES_COLUMNS, DESCRIPTION_COLUMN
-from typing import List
 
 
 class TextCleaner(BaseEstimator, TransformerMixin):
@@ -24,7 +24,8 @@ class TextCleaner(BaseEstimator, TransformerMixin):
         :return: cleaned version of text
         """
         s_1 = s.lower()
-        s_1 = re.sub(r'[()]', '', s_1)
+        s_1 = re.sub(",", ".", s_1)
+        s_1 = re.sub(r"[()]", "", s_1)
         return unidecode.unidecode(s_1)
 
     def fit(self):
