@@ -58,7 +58,6 @@ class DescriptionExtractor(BaseEstimator, TransformerMixin):
             df_copy["plaquette"],
             df_copy["stylo"],
             df_copy["tube"],
-            df_copy["tube"],
             df_copy["seringue"],
             df_copy["cachet"],
             df_copy["gelule"],
