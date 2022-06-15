@@ -70,13 +70,10 @@ class Trainer:
         )
         return pipe
 
-    def train(
-        self, raw_df: pd.DataFrame, ingredient_df: pd.DataFrame, verbose: bool = True
-    ) -> None:
+    def train(self, df: pd.DataFrame, verbose: bool = True) -> None:
         self.run_id += 1
-        final_df = _merge_dfs(raw_df, ingredient_df)
 
-        train, val = train_test_split(final_df, test_size=0.2, random_state=2022)
+        train, val = train_test_split(df, test_size=0.2, random_state=2022)
         y_train, y_val = train[PRICE], val[PRICE]
 
         self._processing_pipe.fit(train)
@@ -93,13 +90,11 @@ class Trainer:
 
         self.logger.info("training finished!")
 
-    def predict(
-        self, raw_df: pd.DataFrame, ingredient_df: pd.DataFrame
-    ) -> pd.DataFrame:
-        final_df = _merge_dfs(raw_df, ingredient_df)
-        x = self._processing_pipe.transform(final_df)
-        final_df["price"] = self.model.predict(x)
-        return final_df[[DRUG_ID, PRICE]]
+    def predict(self, df: pd.DataFrame) -> pd.DataFrame:
+        df_copy = df.copy()
+        x = self._processing_pipe.transform(df_copy)
+        df_copy[PRICE] = self.model.predict(x)
+        return df_copy[[DRUG_ID, PRICE]]
 
     def save_artifacts(self, output_dir: str) -> None:
         joblib.dump(
