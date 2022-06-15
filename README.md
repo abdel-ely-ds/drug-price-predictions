@@ -2,7 +2,55 @@
 
 ## Project Description
 
-The objective is to predict the price for each drug in the test data set (`drugs_test.csv`). Please refer to the `sample_submission.csv` file for the correct format for submissions.
+The objective is to predict the price for each drug in the test data set (`drugs_test.csv`).
+
+## Getting Started
+Installation
+------------
+    $ git clone https://github.com/abdel-ely-ds/drug-price-predictions.git
+    $ cd drugs-price-predictions
+    $ pip install .
+
+Usage
+------------
+
+```python
+import os
+
+from sklearn.model_selection import train_test_split
+import pandas as pd
+
+from drugs import Trainer
+from drugs.constants import DATA_FILE, DATA_FOLDER, PRICE
+
+raw_df = pd.read_csv(os.path.join("../", DATA_FOLDER, RAW_DF_NAME))
+ingredients_df = pd.read_csv(o.path.join("../", DATA_DIR, INGREDIENTS_DF_NAME))
+train, test = train_test_split(random_state=0, test_size=0.2)
+
+trainer = Trainer()
+trainer.train(train)
+preds = trainer.predict(test)
+trainer.score(test[PRICE], preds)
+```
+
+From CLI
+------------
+    $ drugs --output-dir ./artifact --input-file-path ./data/
+
+Project Organization
+------------
+
+    ├── LICENSE            <- MIT License.
+    ├── README.md          <- README of the project.
+    ├── data               <- Raw data
+    ├── src                <- source code for training and predicting bots
+    ├── notebooks          <- Jupyter notebooks
+    ├── requirements.txt   <- The requirements file contains all the necessary libs to run the project
+    ├── src                <- Source code for the project.
+    ├── tests              <- tests forlder
+    └── noxfile.py         <- black, build, tests               
+
+--------
 
 ## Guidelines
 
