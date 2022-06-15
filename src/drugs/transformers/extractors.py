@@ -3,11 +3,12 @@ from collections import OrderedDict
 from typing import List, Tuple
 
 import pandas as pd
+from sklearn.base import BaseEstimator, TransformerMixin
 
 from drugs.constants import DESCRIPTION_COLUMN
 
 
-class DescriptionExtractor:
+class DescriptionExtractor(BaseEstimator, TransformerMixin):
     """
     Feature extraction from description
     """
