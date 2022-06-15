@@ -32,7 +32,7 @@ class TextCleaner(BaseEstimator, TransformerMixin):
 
     def transform(self, df: pd.DataFrame):
         df_copy = df.copy()
-        df_copy[self.column] = df_copy[col].apply(self.normalize_text)
+        df_copy[self.column] = df_copy[self.column].apply(self.normalize_text)
         return df_copy
 
 
@@ -58,6 +58,6 @@ class DateCleaner(BaseEstimator, TransformerMixin):
 
     def transform(self, df: pd.DataFrame):
         df_copy = df.copy()
-        for col in self.columns
+        for col in self.columns:
             df_copy[col] = df_copy[col].apply(self.to_datetime)
         return df_copy

@@ -5,7 +5,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 class HighCardEncoder(BaseEstimator, TransformerMixin):
     """
-    Encode high cardinality features with a mean/median/quantile value of the price
+    Encode high cardinality transformers with a mean/median/quantile value of the price
     """
 
     def __init__(self, columns: List[str]):
