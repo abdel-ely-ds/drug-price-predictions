@@ -62,3 +62,7 @@ class DateCleaner(BaseEstimator, TransformerMixin):
         for col in self.columns:
             df_copy[col] = df_copy[col].apply(self.to_datetime)
         return df_copy
+
+
+class DropColumnsCleaner:
+    pass

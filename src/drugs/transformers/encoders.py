@@ -3,14 +3,16 @@ from typing import List
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from drugs.constants import HIGH_CARD_COLUMNS, ONE_HOT_COLUMNS, STRS_TO_CHECK
+
 
 class HighCardEncoder(BaseEstimator, TransformerMixin):
     """
     Encode high cardinality transformers with a mean/median/quantile value of the price
     """
 
-    def __init__(self, columns: List[str]):
-        self.columns = columns
+    def __init__(self, columns: List[str] = None):
+        self.columns = HIGH_CARD_COLUMNS if columns is None else columns
         self.columns_dict = {}
 
     def fit(self, df: pd.DataFrame, agg_func: str = "mean"):
@@ -32,9 +34,9 @@ class BinaryEncoder(BaseEstimator, TransformerMixin):
     Encode as 0 or 1 categorical columns with 2 cardinalities
     """
 
-    def __init__(self, columns: List[str], strs_to_check: List[str]):
-        self.columns = columns
-        self.strs_to_check = strs_to_check
+    def __init__(self, columns: List[str] = None, strs_to_check: List[str] = None):
+        self.columns = ONE_HOT_COLUMNS if columns is None else columns
+        self.strs_to_check = STRS_TO_CHECK if strs_to_check is None else strs_to_check
 
     def fit(self):
         return self

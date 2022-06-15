@@ -33,3 +33,17 @@ ALL_LABELS = [
     LABEL_POCHE,
     LABEL_CAPSULE,
 ]
+
+HIGH_CARD_COLUMNS = [
+    "dosage_form",
+    "route_of_administration",
+    "pharmaceutical_companies",
+]
+ONE_HOT_COLUMNS = [
+    "marketing_status",
+    "marketing_authorization_status",
+    "marketing_authorization_process",
+]
+STRS_TO_CHECK = ["active", "oui"]
+PRICE = "price"
+DRUG_ID = "drug_id"
