@@ -121,3 +121,15 @@ class Trainer:
                 output_dir, PREDICTION_DIRECTORY, PREDICTION_NAME, str(self.run_id)
             ),
         )
+
+    def load_artifacts(
+        self,
+        from_dir: str,
+        run_id: int,
+    ) -> None:
+        self.model = joblib.load(
+            os.path.join(from_dir, MODEL_DIRECTORY, MODEL_NAME, str(run_id))
+        )
+        self._processing_pipe = joblib.load(
+            os.path.join(from_dir, PIPELINE_DIRECTORY, PIPELINE_NAME, str(run_id))
+        )
