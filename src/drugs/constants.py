@@ -3,6 +3,8 @@ PIPELINE_DIRECTORY = "pipelines"
 MODEL_DIRECTORY = "models"
 PIPELINE_NAME = "pipeline"
 MODEL_NAME = "model"
+PREDICTION_DIRECTORY = "predictions"
+PREDICTION_NAME = "prediction"
 
 # DATA RELATED CONSTANTS
 DATES_COLUMNS = ["marketing_declaration_date", "marketing_authorization_date"]

@@ -13,6 +13,8 @@ from drugs.constants import (
     MODEL_NAME,
     PIPELINE_DIRECTORY,
     PIPELINE_NAME,
+    PREDICTION_DIRECTORY,
+    PREDICTION_NAME,
     PRICE,
 )
 from drugs.core.transformers import (
@@ -43,7 +45,6 @@ class Trainer:
         model=None,
         processing_pipeline: Pipeline = None,
     ):
-        self.run_id += 1
         self.model = XGBRegressor(random_state=2022) if model is None else model
         self._processing_pipe = (
             self._make_processing_pipeline()
@@ -72,6 +73,7 @@ class Trainer:
     def train(
         self, raw_df: pd.DataFrame, ingredient_df: pd.DataFrame, verbose: bool = True
     ) -> None:
+        self.run_id += 1
         final_df = _merge_dfs(raw_df, ingredient_df)
 
         train, val = train_test_split(final_df, test_size=0.2, random_state=2022)
@@ -111,3 +113,11 @@ class Trainer:
             os.path.join(output_dir, MODEL_DIRECTORY, MODEL_NAME, str(self.run_id)),
         )
         self.logger.info(f"artifacts saved successfully to {output_dir}")
+
+    def save_predictions(self, predictions: pd.DataFrame, output_dir: str) -> None:
+        joblib.dump(
+            predictions,
+            os.path.join(
+                output_dir, PREDICTION_DIRECTORY, PREDICTION_NAME, str(self.run_id)
+            ),
+        )
