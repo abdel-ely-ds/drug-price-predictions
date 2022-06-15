@@ -5,7 +5,7 @@ from typing import List, Tuple
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from drugs.constants import DESCRIPTION_COLUMN
+from drugs.constants import ALL_LABELS, DESCRIPTION_COLUMN
 
 
 class DescriptionExtractor(BaseEstimator, TransformerMixin):
@@ -13,24 +13,8 @@ class DescriptionExtractor(BaseEstimator, TransformerMixin):
     Feature extraction from description
     """
 
-    def __init__(self):
-        self._labels = [
-            "plaquette",
-            "stylo",
-            "tube",
-            "seringue",
-            "cachet",
-            "gelule",
-            "flacon",
-            "ampoule",
-            "ml",
-            "g",
-            "pilulier",
-            "comprime",
-            "film",
-            "poche",
-            "capsule",
-        ]
+    def __init__(self, labels: List[str] = None):
+        self._labels = ALL_LABELS if labels is None else labels
         self._pattern = "\d+\.*\d* [a-z]+"
 
     @property
