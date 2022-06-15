@@ -1,0 +1,7 @@
+for feature engineering try:
+    - add interactions between features like groupby multiple columns
+    - use median instead of mean in groupby
+   
+fine tunning:
+    - reg-alpha should be small apparently
+    - reg_lambda should be around 0.01
