@@ -16,6 +16,12 @@ from drugs.constants import (
 class IngredientsEncoder(BaseEstimator, TransformerMixin):
     """
     Encode ingredients with a mean/median/quantile value of the price
+
+    -> To estimate how much an ingredient costs in a drug we take the price of the drug and divide
+    it by the number of ingredients it contains. Then that ingredient would be assigned a feature which
+    is the mean price over all the dataset.
+
+    -> Therefore the ingredients of a drug would be represented as a sorted list of length <top_k>
     """
 
     def __init__(self, column: str = ACTIVE_INGREDIENT):
