@@ -50,8 +50,23 @@ class IngredientsEncoder(BaseEstimator, TransformerMixin):
         )
         return self
 
-    def transform(self, df: pd.DataFrame, top_k: int = 5):
-        pass
+    def transform(
+        self, df: pd.DataFrame, df_ingredients: pd.DataFrame, top_k: int = 5
+    ) -> pd.DataFrame:
+
+        f_cols = [f"ingredient_{i}_feature" for i in range(top_k)]
+        df_ingredients_copy = df_ingredients.copy()
+        df_ingredients_copy["ingredient_price"] = df_ingredients_copy[self.column].map(
+            self.ingredient_price_map
+        )
+        features_df = (
+            df_ingredients_copy.sort_values("ingredient_price", ascending=True)
+            .groupby(DRUG_ID, sort=False)
+            .agg({"ingredient_price": lambda x: self._make_ingredient_prices(x, top_k)})
+            .reset_index()
+        )
+        features_df[f_cols] = pd.DataFrame(features_df.ing_feature.tolist())
+        return df.merge(features_df.drop("ingredient_price"), axis=1)
 
 
 class HighCardEncoder(BaseEstimator, TransformerMixin):
@@ -73,7 +88,6 @@ class HighCardEncoder(BaseEstimator, TransformerMixin):
         df_copy = df.copy()
         for col in self.columns:
             df_copy[col + "_feature"] = df_copy[col].map(self.columns_dict[col])
-            df_copy.drop(columns=[col], inplace=True)
         return df_copy
 
 
@@ -93,5 +107,4 @@ class BinaryEncoder(BaseEstimator, TransformerMixin):
         df_copy = df.copy()
         for col, s in zip(self.columns, self.strs_to_check):
             df_copy[col + "_feature"] = df_copy[col].apply(lambda x: 1 if s in x else 0)
-            df_copy.drop(columns=[col], inplace=True)
         return df_copy
