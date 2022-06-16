@@ -35,7 +35,7 @@ class IngredientsEncoder(BaseEstimator, TransformerMixin):
     ):
         df_ingredient_copy = df_ingredient.copy()
         df_ingredient_copy[PRICE] = df_ingredient_copy.drug_id.map(
-            df.set_index(DRUG_ID).price
+            df.set_index(DRUG_ID)[PRICE]
         )
         df_ingredient_copy["nb_ingredients"] = df_ingredient_copy.groupby(DRUG_ID)[
             self.column
