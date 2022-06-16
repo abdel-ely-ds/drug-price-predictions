@@ -56,3 +56,5 @@ ONE_HOT_COLUMNS = [
 STRS_TO_CHECK = ["active", "oui"]
 PRICE = "price"
 DRUG_ID = "drug_id"
+
+ACTIVE_INGREDIENT = "active_ingredient"
