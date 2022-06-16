@@ -54,7 +54,7 @@ class IngredientsEncoder(BaseEstimator, TransformerMixin):
         self, df: pd.DataFrame, df_ingredients: pd.DataFrame, top_k: int = 5
     ) -> pd.DataFrame:
 
-        f_cols = [f"ingredient_{i}_feature" for i in range(top_k)]
+        f_cols = [f"ingredient{i}_feature" for i in range(top_k)]
         df_ingredients_copy = df_ingredients.copy()
         df_ingredients_copy["ingredient_price"] = df_ingredients_copy[self.column].map(
             self.ingredient_price_map
