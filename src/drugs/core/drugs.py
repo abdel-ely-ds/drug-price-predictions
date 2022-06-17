@@ -44,11 +44,7 @@ class Drugs:
         model=None,
         processing_pipeline: Pipeline = None,
     ):
-        self.model = (
-            XGBRegressor(random_state=2022)
-            if model is None
-            else model
-        )
+        self.model = XGBRegressor(random_state=2022) if model is None else model
         self._processing_pipe = (
             self._make_processing_pipeline()
             if processing_pipeline is None
@@ -86,10 +82,10 @@ class Drugs:
 
         if verbose:
             print("=" * 100)
-            print(
-                f"RMSE SCORE ON TRAIN: {self.score(self.model.predict(x_train), y_train)}"
-            )
-            print(f"RMSE SCORE ON VAL: {self.score(self.model.predict(x_val), y_val)}")
+            train_preds = self.model.predict(x_train)
+            val_preds = self.model.predict(x_val)
+            print(f"RMSE SCORE ON TRAIN: {self.score(train_preds, y_train)}")
+            print(f"RMSE SCORE ON VAL: {self.score(val_preds, y_val)}")
             print("=" * 100)
 
         self.logger.info("training finished!")
@@ -100,11 +96,12 @@ class Drugs:
         df_copy[PRICE] = self.model.predict(x)
         return df_copy[[DRUG_ID, PRICE]]
 
-    def score(self, df: pd.DataFrame, y: pd.Series) -> float:
+    @staticmethod
+    def score(y_preds, y: pd.Series) -> float:
         """
         Computes rmse
         """
-        return mean_squared_error(self.predict(df), y, squared=False)
+        return mean_squared_error(y_preds, y, squared=False)
 
     def save_artifacts(self, output_dir: str) -> None:
         joblib.dump(
