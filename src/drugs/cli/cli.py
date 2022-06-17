@@ -4,8 +4,13 @@ import os
 import click
 import pandas as pd
 
-from drugs.core.drugs import Drugs
-from drugs.utils import MultipleModes, NoModeSpecified, get_latest_run_id, merge_dfs
+from drugs.drugs import Drugs
+from drugs.utils.utils import (
+    MultipleModes,
+    NoModeSpecified,
+    get_latest_run_id,
+    merge_dfs,
+)
 
 
 @click.command()
@@ -53,7 +58,7 @@ def run(
         drugs.save_predictions(predictions=predictions, output_dir=output_dir)
 
     if train:
-        drugs.train(df=df)
+        drugs.fit(df=df)
         drugs.save_artifacts(output_dir=output_dir)
 
 

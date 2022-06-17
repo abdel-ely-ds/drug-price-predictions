@@ -5,12 +5,7 @@ import pandas as pd
 import unidecode
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from drugs.constants import (
-    DATES_COLUMNS,
-    DESCRIPTION_COLUMN,
-    DROP_COLUMNS,
-    TEXT_COLUMNS,
-)
+from drugs.utils.constants import DATES_COLUMNS, DROP_COLUMNS, TEXT_COLUMNS
 
 
 class TextCleaner(BaseEstimator, TransformerMixin):

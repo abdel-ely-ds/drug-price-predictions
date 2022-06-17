@@ -1,1 +1,1 @@
-from drugs.core.drugs import Drugs
+from drugs.drugs import Drugs

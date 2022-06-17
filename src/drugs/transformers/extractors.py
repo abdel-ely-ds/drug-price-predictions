@@ -5,7 +5,7 @@ from typing import List, Tuple
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from drugs.constants import ALL_LABELS, DESCRIPTION_COLUMN
+from drugs.utils.constants import ALL_LABELS, DESCRIPTION_COLUMN
 
 
 class DescriptionExtractor(BaseEstimator, TransformerMixin):

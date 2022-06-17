@@ -8,7 +8,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from xgboost import XGBRegressor
 
-from drugs.constants import (
+from drugs.transformers.cleaners import DateCleaner, DropColumnsCleaner, TextCleaner
+from drugs.transformers.encoders import (
+    IngredientEncoder,
+    PercentageEncoder,
+    TargetEncoder,
+)
+from drugs.utils.constants import (
     DRUG_ID,
     MODEL_DIRECTORY,
     MODEL_NAME,
@@ -17,18 +23,8 @@ from drugs.constants import (
     PREDICTION_DIRECTORY,
     PREDICTION_NAME,
     PRICE,
+    SEED,
 )
-from drugs.core.transformers.cleaners import (
-    DateCleaner,
-    DropColumnsCleaner,
-    TextCleaner,
-)
-from drugs.core.transformers.encoders import (
-    BinaryEncoder,
-    PercentageEncoder,
-    TargetEncoder,
-)
-from drugs.core.transformers.extractors import DescriptionExtractor
 
 
 class Drugs:
@@ -44,7 +40,7 @@ class Drugs:
         model=None,
         processing_pipeline: Pipeline = None,
     ):
-        self.model = XGBRegressor(random_state=2022) if model is None else model
+        self.model = XGBRegressor(random_state=SEED) if model is None else model
         self._processing_pipe = (
             self._make_processing_pipeline()
             if processing_pipeline is None
@@ -63,16 +59,19 @@ class Drugs:
                 ("date_cleaner", DateCleaner()),
                 ("percentage_encoder", PercentageEncoder()),
                 ("target_encoder", TargetEncoder()),
+                ("ingredient_encoder", IngredientEncoder()),
                 ("drop_columns", DropColumnsCleaner()),
             ]
         )
         return pipe
 
-    def train(self, df: pd.DataFrame, verbose: bool = True) -> None:
+    def fit(self, df: pd.DataFrame, verbose: bool = True) -> None:
         self.run_id += 1
 
-        train, val = train_test_split(df, test_size=0.2, random_state=2022)
-        y_train, y_val = train[PRICE], val[PRICE]
+        train, val = train_test_split(df, test_size=0.2, random_state=SEED)
+
+        y_train = train[[DRUG_ID, PRICE]].drop_duplicates(subset=[DRUG_ID])[PRICE]
+        y_val = val[[DRUG_ID, PRICE]].drop_duplicates(subset=[DRUG_ID])[PRICE]
 
         self._processing_pipe.fit(train)
         x_train = self._processing_pipe.transform(train)

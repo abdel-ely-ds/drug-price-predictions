@@ -3,18 +3,19 @@ from typing import List
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from drugs.constants import (
+from drugs.utils.constants import (
     ACTIVE_INGREDIENT,
     DRUG_ID,
     HIGH_CARD_COLUMNS,
     ONE_HOT_COLUMNS,
+    PHARMACY,
     PRICE,
     REIMBURSEMENT_RATE,
     STRS_TO_CHECK,
 )
 
 
-class IngredientsEncoder(BaseEstimator, TransformerMixin):
+class IngredientEncoder(BaseEstimator, TransformerMixin):
     """
     Encode ingredients with a mean/median/quantile value of the price
 
@@ -30,7 +31,7 @@ class IngredientsEncoder(BaseEstimator, TransformerMixin):
         self.ingredient_price_map = {}
 
     @staticmethod
-    def _make_ingredient_prices(x: pd.Series, top_k: int = 5) -> List[float]:
+    def _make_ingredient_prices(x: pd.Series, top_k: int = 3) -> List[float]:
         if len(x) >= top_k:
             return x.iloc[0:top_k].tolist()
         else:
@@ -40,43 +41,56 @@ class IngredientsEncoder(BaseEstimator, TransformerMixin):
     def fit(
         self,
         df: pd.DataFrame,
-        df_ingredient: pd.DataFrame = None,
-        agg_func: str = "mean",
+        y=None,
     ):
-        df_ingredient_copy = df_ingredient.copy()
-        df_ingredient_copy[PRICE] = df_ingredient_copy.drug_id.map(
-            df.set_index(DRUG_ID)[PRICE]
-        )
-        df_ingredient_copy["nb_ingredients"] = df_ingredient_copy.groupby(DRUG_ID)[
+        df_copy = df.copy()
+        df_copy["nb_ingredients"] = df_copy.groupby(DRUG_ID, sort=False)[
             self.column
         ].transform("nunique")
-        df_ingredient_copy["ingredient_price"] = (
-            df_ingredient_copy[PRICE] / df_ingredient_copy.nb_ingredients
-        )
+        df_copy["ingredient_price"] = df_copy[PRICE] / df_copy.nb_ingredients
         self.ingredient_price_map = (
-            df_ingredient_copy.groupby(self.column)
-            .ingredient_price.agg(func=agg_func)
+            df_copy.groupby(self.column, sort=False)
+            .ingredient_price.agg(func="mean")
             .to_dict()
         )
         return self
 
-    def transform(
-        self, df: pd.DataFrame, df_ingredients: pd.DataFrame, top_k: int = 5
-    ) -> pd.DataFrame:
+    def transform(self, df: pd.DataFrame, top_k: int = 3) -> pd.DataFrame:
 
         f_cols = [f"ingredient{i}_feature" for i in range(top_k)]
-        df_ingredients_copy = df_ingredients.copy()
-        df_ingredients_copy["ingredient_price"] = df_ingredients_copy[self.column].map(
+        df_copy = df.copy()
+        df_copy["ingredient_price"] = df_copy[self.column].map(
             self.ingredient_price_map
         )
         features_df = (
-            df_ingredients_copy.sort_values("ingredient_price", ascending=True)
+            df_copy.sort_values("ingredient_price", ascending=True)
             .groupby(DRUG_ID, sort=False)
             .agg({"ingredient_price": lambda x: self._make_ingredient_prices(x, top_k)})
             .reset_index()
         )
         features_df[f_cols] = pd.DataFrame(features_df.ingredient_price.tolist())
-        return df.merge(features_df.drop("ingredient_price", axis=1))
+        df_full = df_copy.merge(features_df.drop("ingredient_price", axis=1))
+        return df_full.drop(ACTIVE_INGREDIENT, axis=1).drop_duplicates(subset=[DRUG_ID])
+
+
+class PharmacyEncoder(BaseEstimator, TransformerMixin):
+    """
+    Encode pharmacy companies with a mean value of the price
+    """
+
+    def __init__(self, column: str = PHARMACY):
+        self.column = column
+        self.ingredient_price_map = {}
+
+    def fit(
+        self,
+        df: pd.DataFrame,
+        y=None,
+    ):
+        return self
+
+    def transform(self, df: pd.DataFrame, top_k: int = 3) -> pd.DataFrame:
+        return
 
 
 class TargetEncoder(BaseEstimator, TransformerMixin):
@@ -88,9 +102,9 @@ class TargetEncoder(BaseEstimator, TransformerMixin):
         self.columns = HIGH_CARD_COLUMNS if columns is None else columns
         self.columns_dict = {}
 
-    def fit(self, df: pd.DataFrame, agg_func: str = "mean"):
+    def fit(self, df: pd.DataFrame, y=None):
         for col in self.columns:
-            col_map = df.groupby(col)[PRICE].agg(func=agg_func)
+            col_map = df.groupby(col, sort=False)[PRICE].agg(func="mean")
             self.columns_dict[col] = col_map
         return self
 

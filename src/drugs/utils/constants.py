@@ -1,3 +1,6 @@
+# Reproducibility
+SEED = 2022
+
 # ARTIFACT RELATED CONSTANTS
 PIPELINE_DIRECTORY = "pipelines"
 MODEL_DIRECTORY = "models"
@@ -92,3 +95,5 @@ DROP_COLUMNS = [
     "pharmaceutical_companies",
     "price",
 ]
+
+PHARMACY = ["pharmaceutical_companies"]
