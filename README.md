@@ -20,22 +20,22 @@ import os
 from sklearn.model_selection import train_test_split
 import pandas as pd
 
-from drugs import Trainer
+from drugs import Drugs
 from drugs.constants import DATA_FILE, DATA_FOLDER, PRICE
 
 raw_df = pd.read_csv(os.path.join("../", DATA_FOLDER, RAW_DF_NAME))
 ingredients_df = pd.read_csv(o.path.join("../", DATA_DIR, INGREDIENTS_DF_NAME))
 train, test = train_test_split(random_state=0, test_size=0.2)
 
-trainer = Trainer()
-trainer.train(train)
-preds = trainer.predict(test)
-trainer.score(test[PRICE], preds)
+drugs = Drugs()
+drugs.train(train)
+preds = drugs.predict(test)
+drugs.score(test[PRICE], preds)
 ```
 
 From CLI
 ------------
-    $ drugs --output-dir ./artifact --input-file-path ./data/
+    $ drugs --train --output-dir ./artifact --input-file-path ./data/
 
 Project Organization
 ------------

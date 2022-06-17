@@ -31,7 +31,7 @@ from drugs.core.transformers.encoders import (
 from drugs.core.transformers.extractors import DescriptionExtractor
 
 
-class Trainer:
+class Drugs:
     """
     Class responsible for training and inference
     """

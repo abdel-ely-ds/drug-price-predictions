@@ -1,1 +1,1 @@
-from drugs.core.trainer import Trainer
+from drugs.core.drugs import Drugs
