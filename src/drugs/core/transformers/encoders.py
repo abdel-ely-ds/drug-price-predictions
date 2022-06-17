@@ -75,8 +75,8 @@ class IngredientsEncoder(BaseEstimator, TransformerMixin):
             .agg({"ingredient_price": lambda x: self._make_ingredient_prices(x, top_k)})
             .reset_index()
         )
-        features_df[f_cols] = pd.DataFrame(features_df.ing_feature.tolist())
-        return df.merge(features_df.drop("ingredient_price"), axis=1)
+        features_df[f_cols] = pd.DataFrame(features_df.ingredient_price.tolist())
+        return df.merge(features_df.drop("ingredient_price", axis=1))
 
 
 class TargetEncoder(BaseEstimator, TransformerMixin):
