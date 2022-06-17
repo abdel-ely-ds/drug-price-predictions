@@ -65,35 +65,43 @@ class Drugs:
         )
         return pipe
 
-    def fit(self, df: pd.DataFrame, verbose: bool = True) -> None:
+    def fit(
+        self,
+        df: pd.DataFrame,
+        df_ingredient: pd.DataFrame,
+        val_df: pd.DataFrame = None,
+        val_df_ingredient: pd.DataFrame = None,
+    ) -> None:
         self.run_id += 1
 
-        train, val = train_test_split(df, test_size=0.2, random_state=SEED)
-
-        y_train = train[[DRUG_ID, PRICE]].drop_duplicates(subset=[DRUG_ID])[PRICE]
-        y_val = val[[DRUG_ID, PRICE]].drop_duplicates(subset=[DRUG_ID])[PRICE]
+        y_train = df[PRICE]
+        train = df.merge(df_ingredient)
 
         self._processing_pipe.fit(train)
         x_train = self._processing_pipe.transform(train)
-        x_val = self._processing_pipe.transform(val)
 
-        self.model.fit(x_train, y_train)
+        if val_df is not None and val_df_ingredient is not None:
+            y_val = val_df[PRICE]
+            val = val_df.merge(val_df_ingredient)
+            x_val = self._processing_pipe.transform(val)
+            self.model.fit(
+                x_train,
+                y_train,
+                eval_set=[(x_train, y_train), (x_val, y_val)],
+                early_stopping=20,
+            )
 
-        if verbose:
-            print("=" * 100)
-            train_preds = self.model.predict(x_train)
-            val_preds = self.model.predict(x_val)
-            print(f"RMSE SCORE ON TRAIN: {self.score(train_preds, y_train)}")
-            print(f"RMSE SCORE ON VAL: {self.score(val_preds, y_val)}")
-            print("=" * 100)
+        else:
+            self.model.fit(x_train, y_train)
 
         self.logger.info("training finished!")
 
-    def predict(self, df: pd.DataFrame) -> pd.DataFrame:
-        df_copy = df.copy()
+    # ToDo fix this
+    def predict(self, df: pd.DataFrame, df_ingredient: pd.DataFrame) -> pd.DataFrame:
+        df_copy = df.merge(df_ingredient)
         x = self._processing_pipe.transform(df_copy)
-        df_copy[PRICE] = self.model.predict(x)
-        return df_copy[[DRUG_ID, PRICE]]
+        ret = df.copy()[DRUG_ID]
+        return self.model.predict(x)
 
     @staticmethod
     def score(y_preds, y: pd.Series) -> float:
