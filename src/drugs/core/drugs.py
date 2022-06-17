@@ -45,7 +45,7 @@ class Drugs:
         processing_pipeline: Pipeline = None,
     ):
         self.model = (
-            XGBRegressor(random_state=2022, eval_metric="mse")
+            XGBRegressor(random_state=2022)
             if model is None
             else model
         )
