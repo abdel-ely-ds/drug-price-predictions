@@ -7,6 +7,15 @@ PREDICTION_DIRECTORY = "predictions"
 PREDICTION_NAME = "prediction"
 
 # DATA RELATED CONSTANTS
+TEXT_COLUMNS = [
+    "description",
+    "administrative_status",
+    "marketing_status",
+    "dosage_form",
+    "marketing_authorization_status",
+    "marketing_authorization_process",
+    "pharmaceutical_companies",
+]
 DATES_COLUMNS = ["marketing_declaration_date", "marketing_authorization_date"]
 DESCRIPTION_COLUMN = "description"
 
@@ -58,3 +67,28 @@ PRICE = "price"
 DRUG_ID = "drug_id"
 
 ACTIVE_INGREDIENT = "active_ingredient"
+REIMBURSEMENT_RATE = "reimbursement_rate"
+
+MARKETING_STATUS_MAP = {
+    "declaration de commercialisation": "dec_com",
+    "declaration darret de commercialisation": "dec_arret_comm",
+    "arret de commercialisation le medicament na plus dautorisation": "arret_com_med",
+    "declaration de suspension de commercialisation": "dec_sus_com",
+}
+
+DROP_COLUMNS = [
+    "drug_id",
+    "description",
+    "administrative_status",
+    "marketing_status",
+    "approved_for_hospital_use",
+    "reimbursement_rate",
+    "dosage_form",
+    "route_of_administration",
+    "marketing_authorization_status",
+    "marketing_declaration_date",
+    "marketing_authorization_date",
+    "marketing_authorization_process",
+    "pharmaceutical_companies",
+    "price",
+]

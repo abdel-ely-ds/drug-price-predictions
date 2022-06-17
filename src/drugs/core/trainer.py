@@ -3,6 +3,7 @@ import os
 
 import joblib
 import pandas as pd
+from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from xgboost import XGBRegressor
@@ -17,12 +18,15 @@ from drugs.constants import (
     PREDICTION_NAME,
     PRICE,
 )
-from drugs.core.transformers import (
-    BinaryEncoder,
+from drugs.core.transformers.cleaners import (
     DateCleaner,
     DropColumnsCleaner,
-    HighCardEncoder,
     TextCleaner,
+)
+from drugs.core.transformers.encoders import (
+    BinaryEncoder,
+    HighCardEncoder,
+    PercentageEncoder,
 )
 from drugs.core.transformers.extractors import DescriptionExtractor
 
@@ -40,7 +44,11 @@ class Trainer:
         model=None,
         processing_pipeline: Pipeline = None,
     ):
-        self.model = XGBRegressor(random_state=2022) if model is None else model
+        self.model = (
+            XGBRegressor(random_state=2022, eval_metric="mse")
+            if model is None
+            else model
+        )
         self._processing_pipe = (
             self._make_processing_pipeline()
             if processing_pipeline is None
@@ -57,10 +65,9 @@ class Trainer:
             [
                 ("text_cleaner", TextCleaner()),
                 ("date_cleaner", DateCleaner()),
-                ("description_extractor", DescriptionExtractor),
+                ("percentage_encoder", PercentageEncoder()),
                 ("high_card_encoder", HighCardEncoder()),
-                ("binary_encoder", BinaryEncoder()),
-                ("drop_columns_cleaner", DropColumnsCleaner),
+                ("drop_columns", DropColumnsCleaner()),
             ]
         )
         return pipe
@@ -79,8 +86,8 @@ class Trainer:
 
         if verbose:
             print("=" * 100)
-            print(f"model scored on train: {self.model.score(train, x_train, y_train)}")
-            print(f"model scored on val: {self.model.score(train, x_val, y_val)}")
+            print(f"model scored on train: {self.model.score(x_train, y_train)}")
+            print(f"model scored on val: {self.model.score(x_val, y_val)}")
             print("=" * 100)
 
         self.logger.info("training finished!")
@@ -90,6 +97,12 @@ class Trainer:
         x = self._processing_pipe.transform(df_copy)
         df_copy[PRICE] = self.model.predict(x)
         return df_copy[[DRUG_ID, PRICE]]
+
+    def score(self, df: pd.DataFrame, y: pd.Series) -> float:
+        """
+        Computes rmse
+        """
+        return mean_squared_error(self.predict(df), y, squared=False)
 
     def save_artifacts(self, output_dir: str) -> None:
         joblib.dump(

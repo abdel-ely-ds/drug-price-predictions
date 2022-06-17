@@ -5,7 +5,12 @@ import pandas as pd
 import unidecode
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from drugs.constants import DATES_COLUMNS, DESCRIPTION_COLUMN
+from drugs.constants import (
+    DATES_COLUMNS,
+    DESCRIPTION_COLUMN,
+    DROP_COLUMNS,
+    TEXT_COLUMNS,
+)
 
 
 class TextCleaner(BaseEstimator, TransformerMixin):
@@ -13,8 +18,8 @@ class TextCleaner(BaseEstimator, TransformerMixin):
     Clean description
     """
 
-    def __init__(self, column: str = DESCRIPTION_COLUMN):
-        self.column = column
+    def __init__(self, columns: List[str] = None):
+        self.columns = TEXT_COLUMNS if columns is None else columns
 
     @staticmethod
     def normalize_text(s: str) -> str:
@@ -28,12 +33,13 @@ class TextCleaner(BaseEstimator, TransformerMixin):
         s_1 = re.sub(r"[()]", "", s_1)
         return unidecode.unidecode(s_1)
 
-    def fit(self):
+    def fit(self, df, y=None):
         return self
 
     def transform(self, df: pd.DataFrame):
         df_copy = df.copy()
-        df_copy[self.column] = df_copy[self.column].apply(self.normalize_text)
+        for col in self.columns:
+            df_copy[col] = df_copy[col].apply(self.normalize_text)
         return df_copy
 
 
@@ -54,7 +60,7 @@ class DateCleaner(BaseEstimator, TransformerMixin):
         """
         return pd.to_datetime(series, format=date_format)
 
-    def fit(self):
+    def fit(self, df, y=None):
         return self
 
     def transform(self, df: pd.DataFrame):
@@ -64,5 +70,16 @@ class DateCleaner(BaseEstimator, TransformerMixin):
         return df_copy
 
 
-class DropColumnsCleaner:
-    pass
+class DropColumnsCleaner(BaseEstimator, TransformerMixin):
+    """
+    Drop columns to keep only features
+    """
+
+    def __init__(self, columns: List[str] = None):
+        self.columns = DROP_COLUMNS if columns is None else columns
+
+    def fit(self, df, y=None):
+        return self
+
+    def transform(self, df: pd.DataFrame):
+        return df.drop(columns=self.columns)

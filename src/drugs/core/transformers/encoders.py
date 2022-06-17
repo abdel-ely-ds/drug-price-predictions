@@ -9,6 +9,7 @@ from drugs.constants import (
     HIGH_CARD_COLUMNS,
     ONE_HOT_COLUMNS,
     PRICE,
+    REIMBURSEMENT_RATE,
     STRS_TO_CHECK,
 )
 
@@ -37,7 +38,10 @@ class IngredientsEncoder(BaseEstimator, TransformerMixin):
             return x_list + [0 for _ in range(top_k - len(x_list))]
 
     def fit(
-        self, df: pd.DataFrame, df_ingredient: pd.DataFrame, agg_func: str = "mean"
+        self,
+        df: pd.DataFrame,
+        df_ingredient: pd.DataFrame = None,
+        agg_func: str = "mean",
     ):
         df_ingredient_copy = df_ingredient.copy()
         df_ingredient_copy[PRICE] = df_ingredient_copy.drug_id.map(
@@ -106,11 +110,31 @@ class BinaryEncoder(BaseEstimator, TransformerMixin):
         self.columns = ONE_HOT_COLUMNS if columns is None else columns
         self.strs_to_check = STRS_TO_CHECK if strs_to_check is None else strs_to_check
 
-    def fit(self):
+    def fit(self, df, y=None):
         return self
 
     def transform(self, df: pd.DataFrame):
         df_copy = df.copy()
         for col, s in zip(self.columns, self.strs_to_check):
             df_copy[col + "_feature"] = df_copy[col].apply(lambda x: 1 if s in x else 0)
+        return df_copy
+
+
+class PercentageEncoder(BaseEstimator, TransformerMixin):
+    """
+    Encode percentages as float between 0 and 1
+    """
+
+    def __init__(self, column: str = REIMBURSEMENT_RATE):
+        self.column = column
+
+    def fit(self, df, y=None):
+        return self
+
+    def transform(self, df: pd.DataFrame):
+        df_copy = df.copy()
+        df_copy[self.column + "_feature"] = (
+            df_copy[self.column].str.replace("%", "").astype(int) / 100
+        )
+
         return df_copy
