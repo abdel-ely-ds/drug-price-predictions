@@ -42,7 +42,8 @@ def run(
     raw_df = pd.read_csv(os.path.join(data_dir, raw_df_name))
     ingredient_df = pd.read_csv(os.path.join(data_dir, ingredients_df_name))
     df = merge_dfs(raw_df, ingredient_df)
-    if train:
+    
+    if predict:
         trainer.load_artifacts(
             from_dir=from_dir,
             run_id=run_id,
@@ -51,7 +52,7 @@ def run(
 
         trainer.save_predictions(predictions=predictions, output_dir=output_dir)
 
-    if predict:
+    if train:
         trainer.train(df=df)
         trainer.save_artifacts(output_dir=output_dir)
 
