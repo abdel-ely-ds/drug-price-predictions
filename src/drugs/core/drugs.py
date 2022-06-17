@@ -66,7 +66,7 @@ class Drugs:
                 ("text_cleaner", TextCleaner()),
                 ("date_cleaner", DateCleaner()),
                 ("percentage_encoder", PercentageEncoder()),
-                ("high_card_encoder", TargetEncoder()),
+                ("target_encoder", TargetEncoder()),
                 ("drop_columns", DropColumnsCleaner()),
             ]
         )
@@ -86,8 +86,10 @@ class Drugs:
 
         if verbose:
             print("=" * 100)
-            print(f"model scored on train: {self.model.score(x_train, y_train)}")
-            print(f"model scored on val: {self.model.score(x_val, y_val)}")
+            print(
+                f"RMSE SCORE ON TRAIN: {self.score(self.model.predict(x_train), y_train)}"
+            )
+            print(f"RMSE SCORE ON VAL: {self.score(self.model.predict(x_val), y_val)}")
             print("=" * 100)
 
         self.logger.info("training finished!")
