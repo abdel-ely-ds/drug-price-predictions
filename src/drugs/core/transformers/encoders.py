@@ -79,7 +79,7 @@ class IngredientsEncoder(BaseEstimator, TransformerMixin):
         return df.merge(features_df.drop("ingredient_price"), axis=1)
 
 
-class HighCardEncoder(BaseEstimator, TransformerMixin):
+class TargetEncoder(BaseEstimator, TransformerMixin):
     """
     Encode high cardinality transformers with a mean/median/quantile value of the price
     """
@@ -90,7 +90,7 @@ class HighCardEncoder(BaseEstimator, TransformerMixin):
 
     def fit(self, df: pd.DataFrame, agg_func: str = "mean"):
         for col in self.columns:
-            col_map = df.groupby(col).price.agg(func=agg_func)
+            col_map = df.groupby(col)[PRICE].agg(func=agg_func)
             self.columns_dict[col] = col_map
         return self
 

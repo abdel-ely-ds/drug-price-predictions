@@ -25,8 +25,8 @@ from drugs.core.transformers.cleaners import (
 )
 from drugs.core.transformers.encoders import (
     BinaryEncoder,
-    HighCardEncoder,
     PercentageEncoder,
+    TargetEncoder,
 )
 from drugs.core.transformers.extractors import DescriptionExtractor
 
@@ -66,7 +66,7 @@ class Drugs:
                 ("text_cleaner", TextCleaner()),
                 ("date_cleaner", DateCleaner()),
                 ("percentage_encoder", PercentageEncoder()),
-                ("high_card_encoder", HighCardEncoder()),
+                ("high_card_encoder", TargetEncoder()),
                 ("drop_columns", DropColumnsCleaner()),
             ]
         )
