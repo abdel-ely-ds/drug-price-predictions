@@ -59,7 +59,6 @@ HIGH_CARD_COLUMNS = [
     "dosage_form",
     "route_of_administration",
     "pharmaceutical_companies",
-    "marketing_year",
 ]
 ONE_HOT_COLUMNS = [
     "marketing_status",

@@ -15,7 +15,6 @@ from drugs.transformers.encoders import (
     TargetEncoder,
 )
 from drugs.utils.constants import (
-    DRUG_ID,
     MODEL_DIRECTORY,
     MODEL_NAME,
     PIPELINE_DIRECTORY,
@@ -39,7 +38,7 @@ class Drugs:
         model=None,
         processing_pipeline: Pipeline = None,
     ):
-        self.model = XGBRegressor(random_state=SEED) if model is None else model
+        self._model = self._make_model() if model is None else model
         self._processing_pipe = (
             self._make_processing_pipeline()
             if processing_pipeline is None
@@ -49,6 +48,14 @@ class Drugs:
     @property
     def processing_pipe(self) -> Pipeline:
         return self._processing_pipe
+
+    @property
+    def model(self):
+        return self._model
+
+    @staticmethod
+    def _make_model():
+        return XGBRegressor(random_state=SEED)
 
     @staticmethod
     def _make_processing_pipeline() -> Pipeline:
@@ -85,7 +92,7 @@ class Drugs:
             y_val = val_df[PRICE]
             val = val_df.merge(val_df_ingredient)
             x_val = self._processing_pipe.transform(val)
-            self.model.fit(
+            self._model.fit(
                 x_train,
                 y_train,
                 eval_set=[(x_train, y_train), (x_val, y_val)],
@@ -94,7 +101,7 @@ class Drugs:
             )
 
         else:
-            self.model.fit(x_train, y_train)
+            self._model.fit(x_train, y_train)
 
         self.logger.info("training finished!")
 
@@ -102,11 +109,11 @@ class Drugs:
     def predict(self, df: pd.DataFrame, df_ingredient: pd.DataFrame) -> pd.DataFrame:
         df_copy = df.merge(df_ingredient)
         x = self._processing_pipe.transform(df_copy)
-        ret = df.copy()[DRUG_ID]
-        return self.model.predict(x)
+        # ret = df.copy()[DRUG_ID]
+        return self._model.predict(x)
 
     def plot_learning_curve(self):
-        results = self.model.evals_result()
+        results = self._model.evals_result()
         epochs = len(results["validation_0"]["rmse"])
         x_axis = range(0, epochs)
 
@@ -125,7 +132,7 @@ class Drugs:
             os.path.join(output_dir, PIPELINE_DIRECTORY, PIPELINE_NAME),
         )
         joblib.dump(
-            self.model,
+            self._model,
             os.path.join(output_dir, MODEL_DIRECTORY, MODEL_NAME),
         )
         self.logger.info(f"artifacts saved successfully to {output_dir}")
@@ -141,7 +148,7 @@ class Drugs:
         self,
         from_dir: str,
     ) -> None:
-        self.model = joblib.load(os.path.join(from_dir, MODEL_DIRECTORY, MODEL_NAME))
+        self._model = joblib.load(os.path.join(from_dir, MODEL_DIRECTORY, MODEL_NAME))
         self._processing_pipe = joblib.load(
             os.path.join(from_dir, PIPELINE_DIRECTORY, PIPELINE_NAME)
         )
