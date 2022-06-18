@@ -32,7 +32,6 @@ class Drugs:
     Class responsible for training and inference
     """
 
-    run_id: int = 1
     logger = logging.getLogger(__name__)
 
     def __init__(
@@ -75,7 +74,6 @@ class Drugs:
         verbose: bool = True,
         early_stopping_rounds: int = 20,
     ) -> None:
-        self.run_id += 1
 
         y_train = df[PRICE]
         train = df.merge(df_ingredient)
@@ -124,38 +122,26 @@ class Drugs:
     def save_artifacts(self, output_dir: str) -> None:
         joblib.dump(
             self._processing_pipe,
-            os.path.join(
-                output_dir, PIPELINE_DIRECTORY, PIPELINE_NAME + "_" + str(self.run_id)
-            ),
+            os.path.join(output_dir, PIPELINE_DIRECTORY, PIPELINE_NAME),
         )
         joblib.dump(
             self.model,
-            os.path.join(
-                output_dir, MODEL_DIRECTORY, MODEL_NAME + "_" + str(self.run_id)
-            ),
+            os.path.join(output_dir, MODEL_DIRECTORY, MODEL_NAME),
         )
         self.logger.info(f"artifacts saved successfully to {output_dir}")
 
-    def save_predictions(self, predictions: pd.DataFrame, output_dir: str) -> None:
+    @staticmethod
+    def save_predictions(predictions: pd.DataFrame, output_dir: str) -> None:
         joblib.dump(
             predictions,
-            os.path.join(
-                output_dir,
-                PREDICTION_DIRECTORY,
-                PREDICTION_NAME + "_" + str(self.run_id),
-            ),
+            os.path.join(output_dir, PREDICTION_DIRECTORY, PREDICTION_NAME),
         )
 
     def load_artifacts(
         self,
         from_dir: str,
-        run_id: int,
     ) -> None:
-        self.model = joblib.load(
-            os.path.join(from_dir, MODEL_DIRECTORY, MODEL_NAME + "_" + str(run_id))
-        )
+        self.model = joblib.load(os.path.join(from_dir, MODEL_DIRECTORY, MODEL_NAME))
         self._processing_pipe = joblib.load(
-            os.path.join(
-                from_dir, PIPELINE_DIRECTORY, PIPELINE_NAME + "_" + str(run_id)
-            )
+            os.path.join(from_dir, PIPELINE_DIRECTORY, PIPELINE_NAME)
         )

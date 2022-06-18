@@ -5,12 +5,7 @@ import click
 import pandas as pd
 
 from drugs.drugs import Drugs
-from drugs.utils.utils import (
-    MultipleModes,
-    NoModeSpecified,
-    get_latest_run_id,
-    merge_dfs,
-)
+from drugs.exceptions.exceptions import MultipleModes, NoModeSpecified
 
 
 @click.command()
@@ -19,9 +14,12 @@ from drugs.utils.utils import (
 @click.option("--data-dir", type=str, required=True)
 @click.option("--df-filename", type=str, required=True)
 @click.option("--df-ingredient-filename", type=str, required=True)
+@click.option("--val-df-filename", type=str, required=False)
+@click.option("--val-df-ingredient-filename", type=str, required=False)
 @click.option("--output-dir", type=str, required=False)
 @click.option("--from-dir", type=str, required=False)
-@click.option("--run-id", type=int, required=False)
+@click.option("--early-stopping-rounds", type=int, required=False)
+@click.option("--verbose", type=int, required=False)
 def run(
     train: bool,
     predict: bool,
@@ -30,13 +28,11 @@ def run(
     df_ingredient_filename: str,
     val_df_filename: str = None,
     val_df_ingredient_filename=None,
-    verbose: bool = True,
-    early_stopping_round: int = 20,
     output_dir: str = None,
     from_dir: str = None,
-    run_id: int = get_latest_run_id(),
+    early_stopping_rounds: int = 20,
+    verbose: bool = True,
 ) -> None:
-
     if not predict and not train:
         raise NoModeSpecified()
 
@@ -45,23 +41,38 @@ def run(
 
     msg = "training mode" if train else "inference mode"
     click.echo(f"running on {msg}")
-    click.echo(f"using run id: {run_id}")
 
     drugs = Drugs()
     df = pd.read_csv(os.path.join(data_dir, df_filename))
     df_ingredient = pd.read_csv(os.path.join(data_dir, df_ingredient_filename))
 
+    try:
+        val_df = pd.read_csv(os.path.join(data_dir, val_df_filename))
+        val_df_ingredient = pd.read_csv(
+            os.path.join(data_dir, val_df_ingredient_filename)
+        )
+
+    except FileNotFoundError:
+        val_df, val_df_ingredient = None, None
+
     if predict:
         drugs.load_artifacts(
             from_dir=from_dir,
-            run_id=run_id,
         )
         predictions = drugs.predict(df=df, df_ingredient=df_ingredient)
 
         drugs.save_predictions(predictions=predictions, output_dir=output_dir)
 
     if train:
-        drugs.fit(df=df, df_ingredient=df_ingredient)
+        drugs.fit(
+            df=df,
+            df_ingredient=df_ingredient,
+            val_df=val_df,
+            val_df_ingredient=val_df_ingredient,
+            verbose=verbose,
+            early_stopping_rounds=early_stopping_rounds,
+        )
+
         drugs.save_artifacts(output_dir=output_dir)
 
 
