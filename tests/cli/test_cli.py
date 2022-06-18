@@ -18,7 +18,7 @@ class TestCli:
         ]
 
         runner = CliRunner()
-        result = runner.invoke(cli.run, args=args)
+        result = runner.invoke(cli.train, args=args)
         expected_results = "running on training mode\n"
         assert result.output == expected_results
 
@@ -37,5 +37,5 @@ class TestCli:
         ]
 
         runner = CliRunner()
-        result = runner.invoke(cli.run, args=args)
+        result = runner.invoke(cli.train, args=args)
         assert result.exit_code != 0

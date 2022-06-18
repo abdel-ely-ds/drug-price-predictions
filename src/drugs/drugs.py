@@ -15,6 +15,7 @@ from drugs.transformers.encoders import (
     TargetEncoder,
 )
 from drugs.utils.constants import (
+    DRUG_ID,
     MODEL_DIRECTORY,
     MODEL_NAME,
     PIPELINE_DIRECTORY,
@@ -109,8 +110,9 @@ class Drugs:
     def predict(self, df: pd.DataFrame, df_ingredient: pd.DataFrame) -> pd.DataFrame:
         df_copy = df.merge(df_ingredient)
         x = self._processing_pipe.transform(df_copy)
-        # ret = df.copy()[DRUG_ID]
-        return self._model.predict(x)
+        prices = self._model.predict(x)
+
+        return pd.DataFrame.from_dict({DRUG_ID: df[DRUG_ID], PRICE: prices})
 
     def plot_learning_curve(self):
         results = self._model.evals_result()
@@ -139,9 +141,9 @@ class Drugs:
 
     @staticmethod
     def save_predictions(predictions: pd.DataFrame, output_dir: str) -> None:
-        joblib.dump(
-            predictions,
-            os.path.join(output_dir, PREDICTION_DIRECTORY, PREDICTION_NAME),
+        predictions.to_csv(
+            os.path.join(output_dir, PREDICTION_DIRECTORY, PREDICTION_NAME + ".csv"),
+            index=False,
         )
 
     def load_artifacts(

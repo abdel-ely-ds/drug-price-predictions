@@ -35,7 +35,8 @@ drugs.score(test[PRICE], preds)
 
 From CLI
 ------------
-    $ drugs --train --output-dir ./artifact --input-file-path ./data/
+    $ drugs-price run --train --data-dir ./data/ --output-dir ./artifacts --df-filename drugs_train.csv --df-ingredient-filename active_ingredients.csv
+
 
 Project Organization
 ------------
