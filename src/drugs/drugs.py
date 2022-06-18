@@ -2,9 +2,8 @@ import logging
 import os
 
 import joblib
+import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.metrics import mean_squared_error
-from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from xgboost import XGBRegressor
 
@@ -71,6 +70,8 @@ class Drugs:
         df_ingredient: pd.DataFrame,
         val_df: pd.DataFrame = None,
         val_df_ingredient: pd.DataFrame = None,
+        verbose: bool = True,
+        early_stopping_rounds: int = 20,
     ) -> None:
         self.run_id += 1
 
@@ -88,7 +89,8 @@ class Drugs:
                 x_train,
                 y_train,
                 eval_set=[(x_train, y_train), (x_val, y_val)],
-                early_stopping=20,
+                early_stopping_rounds=early_stopping_rounds,
+                verbose=verbose,
             )
 
         else:
@@ -103,12 +105,19 @@ class Drugs:
         ret = df.copy()[DRUG_ID]
         return self.model.predict(x)
 
-    @staticmethod
-    def score(y_preds, y: pd.Series) -> float:
-        """
-        Computes rmse
-        """
-        return mean_squared_error(y_preds, y, squared=False)
+    def plot_learning_curve(self):
+        results = self.model.evals_result()
+        epochs = len(results["validation_0"]["rmse"])
+        x_axis = range(0, epochs)
+
+        fig, ax = plt.subplots()
+        ax.plot(x_axis, results["validation_0"]["rmse"], label="Train")
+        ax.plot(x_axis, results["validation_1"]["rmse"], label="Val")
+        ax.legend()
+        plt.xlabel("Epochs")
+        plt.ylabel("RMSE")
+        plt.title("XGBoost learning curve")
+        plt.show()
 
     def save_artifacts(self, output_dir: str) -> None:
         joblib.dump(
