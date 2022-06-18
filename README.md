@@ -17,20 +17,30 @@ Usage
 ```python
 import os
 
-from sklearn.model_selection import train_test_split
 import pandas as pd
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import train_test_split
 
 from drugs import Drugs
-from drugs.utils.constants import DATA_FILE, DATA_FOLDER, PRICE
+from drugs.utils.constants import DRUG_ID, PRICE, SEED
 
-raw_df = pd.read_csv(os.path.join("../", DATA_FOLDER, RAW_DF_NAME))
-ingredients_df = pd.read_csv(o.path.join("../", DATA_DIR, INGREDIENTS_DF_NAME))
-train, test = train_test_split(random_state=0, test_size=0.2)
+df = pd.read_csv(os.path.join("../data/", "drugs_train.csv"))
+df_ingredient = pd.read_csv(o.path.join("../data/", "active_ingredients.csv"))
+
+train_df, val_df = train_test_split(random_state=SEED, test_size=0.2)
+
+train_df_ingredient = df_ingredient[df_ingredient[DRUG_ID].isin(train_df[DRUG_ID])]
+val_df_ingredient = df_ingredient[df_ingredient[DRUG_ID].isin(val_df[DRUG_ID])]
 
 drugs = Drugs()
-drugs.fit(train)
-preds = drugs.predict(test)
-drugs.score(test[PRICE], preds)
+drugs.fit(
+    df=train_df,
+    df_ingredient=train_df_ingredient,
+    val_df=val_df,
+    val_df_ingredient=val_df_ingredient,
+)
+preds = drugs.predict(val_df, val_df_ingredient)
+print(f"RMSE: {mean_squared_error(preds, val_df[PRICE], squared=False)}")
 ```
 
 From CLI
