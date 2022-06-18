@@ -23,7 +23,7 @@ DATES_COLUMNS = ["marketing_declaration_date", "marketing_authorization_date"]
 DESCRIPTION_COLUMN = "description"
 
 LABEL_PLAQUETTE = "plaquette"
-LABEL_STYLO = ("stylo",)
+LABEL_STYLO = "stylo"
 LABEL_TUBE = "tube"
 LABEL_SERINGUE = "seringue"
 LABEL_CACHET = "cachet"

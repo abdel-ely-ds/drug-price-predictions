@@ -1,10 +1,14 @@
-from typing import List
+import re
+from collections import OrderedDict
+from typing import Any, List, Tuple
 
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from drugs.utils.constants import (
     ACTIVE_INGREDIENT,
+    ALL_LABELS,
+    DESCRIPTION_COLUMN,
     DRUG_ID,
     HIGH_CARD_COLUMNS,
     ONE_HOT_COLUMNS,
@@ -13,6 +17,44 @@ from drugs.utils.constants import (
     REIMBURSEMENT_RATE,
     STRS_TO_CHECK,
 )
+
+
+class DescriptionEncoder(BaseEstimator, TransformerMixin):
+    """
+    Feature extraction from description
+    """
+
+    def __init__(self, labels: List[str] = None):
+        self._labels = ALL_LABELS if labels is None else labels
+        self._pattern = "\d+\.*\d* [a-z]+"
+
+    @property
+    def labels(self) -> List[str]:
+        return self._labels
+
+    def match(self, description: str) -> Tuple[Any, ...]:
+        """
+        Find labels in description and their count
+        """
+        ret = OrderedDict((label, 0) for label in self._labels)
+        matches = re.findall(self._pattern, description)
+        for match in matches:
+            quantity, label = match.split()
+            if label in self._labels:
+                ret[label] = quantity
+        return tuple(ret.values())
+
+    def fit(self, df=None, y=None):
+        return self
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        f_cols = [col + "_feature" for col in self._labels]
+        df_copy = df.copy()
+        df_copy[f_cols] = pd.DataFrame(
+            df_copy[DESCRIPTION_COLUMN].map(self.match).tolist()
+        )
+        df_copy[f_cols] = df_copy[f_cols].astype(float)
+        return df_copy
 
 
 class IngredientEncoder(BaseEstimator, TransformerMixin):
@@ -70,7 +112,9 @@ class IngredientEncoder(BaseEstimator, TransformerMixin):
         )
         features_df[f_cols] = pd.DataFrame(features_df.ingredient_price.tolist())
         df_full = df_copy.merge(features_df.drop("ingredient_price", axis=1))
-        return df_full.drop(ACTIVE_INGREDIENT, axis=1).drop_duplicates(subset=[DRUG_ID])
+        return df_full.drop(
+            columns=["ingredient_price", ACTIVE_INGREDIENT]
+        ).drop_duplicates(subset=[DRUG_ID])
 
 
 class PharmacyEncoder(BaseEstimator, TransformerMixin):

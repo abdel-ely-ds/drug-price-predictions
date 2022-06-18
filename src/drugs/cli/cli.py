@@ -16,9 +16,9 @@ from drugs.utils.utils import (
 @click.command()
 @click.option("--train", is_flag=True)
 @click.option("--predict", is_flag=True)
-@click.option("data-dir", type=str, required=True)
-@click.option("raw-df-name", type=str, required=True)
-@click.option("ingredients-df-name", type=str, required=True)
+@click.option("--data-dir", type=str, required=True)
+@click.option("--df-filename", type=str, required=True)
+@click.option("--df-ingredient-filename", type=str, required=True)
 @click.option("--output-dir", type=str, required=False)
 @click.option("--from-dir", type=str, required=False)
 @click.option("--run-id", type=int, required=False)
@@ -26,8 +26,12 @@ def run(
     train: bool,
     predict: bool,
     data_dir: str,
-    raw_df_name: str,
-    ingredients_df_name: str,
+    df_filename: str,
+    df_ingredient_filename: str,
+    val_df_filename: str = None,
+    val_df_ingredient_filename=None,
+    verbose: bool = True,
+    early_stopping_round: int = 20,
     output_dir: str = None,
     from_dir: str = None,
     run_id: int = get_latest_run_id(),
@@ -44,21 +48,20 @@ def run(
     click.echo(f"using run id: {run_id}")
 
     drugs = Drugs()
-    raw_df = pd.read_csv(os.path.join(data_dir, raw_df_name))
-    ingredient_df = pd.read_csv(os.path.join(data_dir, ingredients_df_name))
-    df = merge_dfs(raw_df, ingredient_df)
+    df = pd.read_csv(os.path.join(data_dir, df_filename))
+    df_ingredient = pd.read_csv(os.path.join(data_dir, df_ingredient_filename))
 
     if predict:
         drugs.load_artifacts(
             from_dir=from_dir,
             run_id=run_id,
         )
-        predictions = drugs.predict(df=df)
+        predictions = drugs.predict(df=df, df_ingredient=df_ingredient)
 
         drugs.save_predictions(predictions=predictions, output_dir=output_dir)
 
     if train:
-        drugs.fit(df=df)
+        drugs.fit(df=df, df_ingredient=df_ingredient)
         drugs.save_artifacts(output_dir=output_dir)
 
 

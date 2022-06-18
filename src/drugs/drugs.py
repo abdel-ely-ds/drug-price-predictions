@@ -9,6 +9,7 @@ from xgboost import XGBRegressor
 
 from drugs.transformers.cleaners import DateCleaner, DropColumnsCleaner, TextCleaner
 from drugs.transformers.encoders import (
+    DescriptionEncoder,
     IngredientEncoder,
     PercentageEncoder,
     TargetEncoder,
@@ -59,6 +60,7 @@ class Drugs:
                 ("percentage_encoder", PercentageEncoder()),
                 ("target_encoder", TargetEncoder()),
                 ("ingredient_encoder", IngredientEncoder()),
+                ("description_encoder", DescriptionEncoder()),
                 ("drop_columns", DropColumnsCleaner()),
             ]
         )
