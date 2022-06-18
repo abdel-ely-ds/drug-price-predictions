@@ -45,7 +45,7 @@ print(f"RMSE: {mean_squared_error(preds, val_df[PRICE], squared=False)}")
 
 From CLI
 ------------
-    $ drugs-price run --train --data-dir ./data/ --output-dir ./artifacts --df-filename drugs_train.csv --df-ingredient-filename active_ingredients.csv
+    $ drugs-price train --data-dir ./data/ --output-dir ./artifacts --df-filename drugs_train.csv --df-ingredient-filename active_ingredients.csv
 
 
 Project Organization
