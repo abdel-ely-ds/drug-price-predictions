@@ -7,7 +7,7 @@ with open("requirements.txt") as f:
     requirements = f.readlines()
 
 setup(
-    name="drugs-price-predictor",
+    name="drugs-price",
     version="0.1.0",
     description="Predicting drugs prices",
     keywords=["regression", "drugs"],
@@ -18,7 +18,7 @@ setup(
     include_package_data=True,
     packages=setuptools.find_packages("src"),
     package_dir={"": "src"},
-    entry_points={"console_scripts": ["drugs=drugs.cli.cli:main"]},
+    entry_points={"console_scripts": ["drugs-price=drugs.cli.cli:main"]},
     install_requires=requirements,
     tests_require=TEST_DEPS,
     extras_require={"test": TEST_DEPS},

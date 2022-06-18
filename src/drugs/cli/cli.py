@@ -52,7 +52,7 @@ def run(
             os.path.join(data_dir, val_df_ingredient_filename)
         )
 
-    except FileNotFoundError:
+    except ValueError:
         val_df, val_df_ingredient = None, None
 
     if predict:
