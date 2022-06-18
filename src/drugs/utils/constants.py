@@ -59,6 +59,7 @@ HIGH_CARD_COLUMNS = [
     "dosage_form",
     "route_of_administration",
     "pharmaceutical_companies",
+    "marketing_year",
 ]
 ONE_HOT_COLUMNS = [
     "marketing_status",
@@ -79,21 +80,5 @@ MARKETING_STATUS_MAP = {
     "declaration de suspension de commercialisation": "dec_sus_com",
 }
 
-DROP_COLUMNS = [
-    "drug_id",
-    "description",
-    "administrative_status",
-    "marketing_status",
-    "approved_for_hospital_use",
-    "reimbursement_rate",
-    "dosage_form",
-    "route_of_administration",
-    "marketing_authorization_status",
-    "marketing_declaration_date",
-    "marketing_authorization_date",
-    "marketing_authorization_process",
-    "pharmaceutical_companies",
-    "price",
-]
-
 PHARMACY = ["pharmaceutical_companies"]
+MARKETING_YEAR = ["marketing_year"]

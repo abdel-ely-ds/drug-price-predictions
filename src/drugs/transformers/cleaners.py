@@ -5,7 +5,7 @@ import pandas as pd
 import unidecode
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from drugs.utils.constants import DATES_COLUMNS, DROP_COLUMNS, TEXT_COLUMNS
+from drugs.utils.constants import DATES_COLUMNS, MARKETING_YEAR, TEXT_COLUMNS
 
 
 class TextCleaner(BaseEstimator, TransformerMixin):
@@ -40,7 +40,7 @@ class TextCleaner(BaseEstimator, TransformerMixin):
 
 class DateCleaner(BaseEstimator, TransformerMixin):
     """
-    Put date columns on the right format
+    Put date columns on the right format as adds a year column
     """
 
     def __init__(self, columns: List[str] = None):
@@ -62,6 +62,8 @@ class DateCleaner(BaseEstimator, TransformerMixin):
         df_copy = df.copy()
         for col in self.columns:
             df_copy[col] = df_copy[col].apply(self.to_datetime)
+
+        # df_copy[MARKETING_YEAR] = df_copy[self.columns[0]].dt.year
         return df_copy
 
 
@@ -70,10 +72,11 @@ class DropColumnsCleaner(BaseEstimator, TransformerMixin):
     Drop columns to keep only features
     """
 
-    def __init__(self, columns: List[str] = None):
-        self.columns = DROP_COLUMNS if columns is None else columns
+    def __init__(self):
+        self.columns = None
 
     def fit(self, df, y=None):
+        self.columns = [col for col in df.columns if "feature" not in col]
         return self
 
     def transform(self, df: pd.DataFrame):
