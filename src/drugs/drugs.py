@@ -123,12 +123,14 @@ class Drugs:
         joblib.dump(
             self._processing_pipe,
             os.path.join(
-                output_dir, PIPELINE_DIRECTORY, PIPELINE_NAME, str(self.run_id)
+                output_dir, PIPELINE_DIRECTORY, PIPELINE_NAME + "_" + str(self.run_id)
             ),
         )
         joblib.dump(
             self.model,
-            os.path.join(output_dir, MODEL_DIRECTORY, MODEL_NAME, str(self.run_id)),
+            os.path.join(
+                output_dir, MODEL_DIRECTORY, MODEL_NAME + "_" + str(self.run_id)
+            ),
         )
         self.logger.info(f"artifacts saved successfully to {output_dir}")
 
@@ -136,7 +138,9 @@ class Drugs:
         joblib.dump(
             predictions,
             os.path.join(
-                output_dir, PREDICTION_DIRECTORY, PREDICTION_NAME, str(self.run_id)
+                output_dir,
+                PREDICTION_DIRECTORY,
+                PREDICTION_NAME + "_" + str(self.run_id),
             ),
         )
 
@@ -146,8 +150,10 @@ class Drugs:
         run_id: int,
     ) -> None:
         self.model = joblib.load(
-            os.path.join(from_dir, MODEL_DIRECTORY, MODEL_NAME, str(run_id))
+            os.path.join(from_dir, MODEL_DIRECTORY, MODEL_NAME + "_" + str(run_id))
         )
         self._processing_pipe = joblib.load(
-            os.path.join(from_dir, PIPELINE_DIRECTORY, PIPELINE_NAME, str(run_id))
+            os.path.join(
+                from_dir, PIPELINE_DIRECTORY, PIPELINE_NAME + "_" + str(run_id)
+            )
         )
