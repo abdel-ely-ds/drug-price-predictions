@@ -1,16 +1,22 @@
 import logging
 import os
+from typing import List
 
 import joblib
 import matplotlib.pyplot as plt
 import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.pipeline import Pipeline
-from xgboost import XGBRegressor
 
-from drugs.transformers.cleaners import DateCleaner, DropColumnsCleaner, TextCleaner
+from drugs.transformers.cleaners import (
+    DateCleaner,
+    DropColumnsCleaner,
+    DropDuplicatesCleaner,
+    TextCleaner,
+)
 from drugs.transformers.encoders import (
     DescriptionEncoder,
-    IngredientEncoder,
+    OneHotEncoder,
     PercentageEncoder,
     TargetEncoder,
 )
@@ -24,6 +30,7 @@ from drugs.utils.constants import (
     PREDICTION_NAME,
     PRICE,
     SEED,
+    SELECTED_FEATURES,
 )
 
 
@@ -38,6 +45,7 @@ class Drugs:
         self,
         model=None,
         processing_pipeline: Pipeline = None,
+        selected_features: List[str] = None,
     ):
         self._model = self._make_model() if model is None else model
         self._processing_pipe = (
@@ -45,18 +53,27 @@ class Drugs:
             if processing_pipeline is None
             else processing_pipeline
         )
+        self.selected_features = (
+            SELECTED_FEATURES if selected_features is None else selected_features
+        )
 
     @property
     def processing_pipe(self) -> Pipeline:
         return self._processing_pipe
 
     @property
-    def model(self):
+    def model(self) -> RandomForestRegressor:
         return self._model
 
     @staticmethod
-    def _make_model():
-        return XGBRegressor(random_state=SEED)
+    def _make_model() -> RandomForestRegressor:
+        return RandomForestRegressor(
+            max_depth=6,
+            max_features="sqrt",
+            n_jobs=-1,
+            random_state=SEED,
+            n_estimators=500,
+        )
 
     @staticmethod
     def _make_processing_pipeline() -> Pipeline:
@@ -65,9 +82,10 @@ class Drugs:
                 ("text_cleaner", TextCleaner()),
                 ("date_cleaner", DateCleaner()),
                 ("percentage_encoder", PercentageEncoder()),
+                ("one_hot_encoder", OneHotEncoder()),
                 ("target_encoder", TargetEncoder()),
-                ("ingredient_encoder", IngredientEncoder()),
                 ("description_encoder", DescriptionEncoder()),
+                ("drop_duplicates", DropDuplicatesCleaner()),
                 ("drop_columns", DropColumnsCleaner()),
             ]
         )
@@ -77,41 +95,21 @@ class Drugs:
         self,
         df: pd.DataFrame,
         df_ingredient: pd.DataFrame,
-        val_df: pd.DataFrame = None,
-        val_df_ingredient: pd.DataFrame = None,
-        verbose: bool = True,
-        early_stopping_rounds: int = 20,
     ) -> None:
 
         y_train = df[PRICE]
+
         train = df.merge(df_ingredient)
 
-        self._processing_pipe.fit(train)
-        x_train = self._processing_pipe.transform(train)
-
-        if val_df is not None and val_df_ingredient is not None:
-            y_val = val_df[PRICE]
-            val = val_df.merge(val_df_ingredient)
-            x_val = self._processing_pipe.transform(val)
-            self._model.fit(
-                x_train,
-                y_train,
-                eval_set=[(x_train, y_train), (x_val, y_val)],
-                early_stopping_rounds=early_stopping_rounds,
-                verbose=verbose,
-            )
-
-        else:
-            self._model.fit(x_train, y_train)
+        x_train = self._processing_pipe.fit_transform(train, train[PRICE])
+        self._model.fit(x_train[self.selected_features], y_train)
 
         self.logger.info("training finished!")
 
-    # ToDo fix this
     def predict(self, df: pd.DataFrame, df_ingredient: pd.DataFrame) -> pd.DataFrame:
         df_copy = df.merge(df_ingredient)
         x = self._processing_pipe.transform(df_copy)
-        prices = self._model.predict(x)
-
+        prices = self._model.predict(x[self.selected_features])
         return pd.DataFrame.from_dict({DRUG_ID: df[DRUG_ID], PRICE: prices})
 
     def plot_learning_curve(self):

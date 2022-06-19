@@ -4,6 +4,26 @@
 
 The objective is to predict the price for each drug in the test data set (`drugs_test.csv`).
 
+### Approach
+***The preprocessing and encoding steps***
+1. Cleaned all text data and created a year column
+2. Encoded all features:
+   1. For high cardinality features like **dosage_form**, **route_of_administration**... created a **mean target** with cross validation
+   2. **Ingredient** are encoded with mean target and for each drug then we take the average of the ingredients it contains 
+   3. For **pharmacy** column, I took only the first one on the list. This choice is justified by the fact there are only 2 samples where we have multiple companies. Then it was encoded with mean target 
+   4. **Percentage** column was converted to an integer between  0 and 1 
+   5. Other columns to **one hot encoding**
+
+***Models tested***
+1. Tried multiple methods linear regression (LR), decision tree (DT), random forest, xgboost but ended choosing RandomForest as LR and DT were underfitting and xgboost overfitting
+2. Tried ensemble, but it was worse.
+3. Chose **RandomForest**
+
+***Fine-tuning***
+1. Grid search with cross validation to find the best parameters
+2. Feature selection using Recursive feature selection (RFE)
+
+**RMSE**:  **55.86** on val dataset and **38.39** on train (Still need to improve the model)
 ## Getting Started
 Installation
 ------------
@@ -35,17 +55,16 @@ val_df_ingredient = df_ingredient[df_ingredient[DRUG_ID].isin(val_df[DRUG_ID])]
 drugs = Drugs()
 drugs.fit(
     df=train_df,
-    df_ingredient=train_df_ingredient,
-    val_df=val_df,
-    val_df_ingredient=val_df_ingredient,
+    df_ingredient=train_df_ingredient
 )
-preds = drugs.predict(val_df, val_df_ingredient)
+preds = drugs.predict(val_df, val_df_ingredient)[PRICE]
 print(f"RMSE: {mean_squared_error(preds, val_df[PRICE], squared=False)}")
 ```
 
 From CLI
 ------------
     $ drugs-price train --data-dir ./data/ --output-dir ./artifacts --df-filename drugs_train.csv --df-ingredient-filename active_ingredients.csv
+    $ drugs-price predict --data-dir ./data/ --output-dir ./artifacts --df-filename drugs_train.csv --df-ingredient-filename active_ingredients.csv
 
 
 Project Organization
