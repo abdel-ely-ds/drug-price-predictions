@@ -23,7 +23,7 @@ The objective is to predict the price for each drug in the test data set (`drugs
 1. Grid search with cross validation to find the best parameters
 2. Feature selection using Recursive feature selection (RFE)
 
-**RMSE**:  **55.86** on val dataset and **38.39** on train (Still need to improve the model)
+**RMSE**:  **51.92** on val dataset and **41.75** on train (Still need to improve the model) -> check the ***drugs.ipynb*** in the notebooks folder
 ## Getting Started
 Installation
 ------------
@@ -45,9 +45,9 @@ from drugs import Drugs
 from drugs.utils.constants import DRUG_ID, PRICE, SEED
 
 df = pd.read_csv(os.path.join("../data/", "drugs_train.csv"))
-df_ingredient = pd.read_csv(o.path.join("../data/", "active_ingredients.csv"))
+df_ingredient = pd.read_csv(os.path.join("../data/", "active_ingredients.csv"))
 
-train_df, val_df = train_test_split(random_state=SEED, test_size=0.2)
+train_df, val_df = train_test_split(df, random_state=SEED, test_size=0.2)
 
 train_df_ingredient = df_ingredient[df_ingredient[DRUG_ID].isin(train_df[DRUG_ID])]
 val_df_ingredient = df_ingredient[df_ingredient[DRUG_ID].isin(val_df[DRUG_ID])]

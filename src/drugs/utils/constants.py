@@ -52,7 +52,7 @@ ONE_HOT_COLUMNS = [
     "marketing_authorization_process",
 ]
 
-BINARY_COLUMNS = []
+BINARY_COLUMNS = ["administrative_status", "approved_for_hospital_use"]
 
 STRS_TO_CHECK = ["active", "oui"]
 PRICE = "price"
@@ -62,7 +62,6 @@ REIMBURSEMENT_RATE = "reimbursement_rate"
 
 PHARMACY_COLUMN = "pharmaceutical_companies"
 YEAR = "year"
-
 
 SELECTED_FEATURES = [
     "reimbursement_rate_feature",

@@ -3,7 +3,6 @@ import os
 from typing import List
 
 import joblib
-import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.pipeline import Pipeline
@@ -15,10 +14,11 @@ from drugs.transformers.cleaners import (
     TextCleaner,
 )
 from drugs.transformers.encoders import (
+    BinaryEncoder,
     DescriptionEncoder,
     OneHotEncoder,
     PercentageEncoder,
-    TargetEncoder,
+    TargetEncoderCV,
 )
 from drugs.utils.constants import (
     DRUG_ID,
@@ -30,7 +30,6 @@ from drugs.utils.constants import (
     PREDICTION_NAME,
     PRICE,
     SEED,
-    SELECTED_FEATURES,
 )
 
 
@@ -53,9 +52,6 @@ class Drugs:
             if processing_pipeline is None
             else processing_pipeline
         )
-        self.selected_features = (
-            SELECTED_FEATURES if selected_features is None else selected_features
-        )
 
     @property
     def processing_pipe(self) -> Pipeline:
@@ -68,11 +64,13 @@ class Drugs:
     @staticmethod
     def _make_model() -> RandomForestRegressor:
         return RandomForestRegressor(
-            max_depth=6,
+            max_depth=8,
+            min_samples_leaf=4,
+            min_samples_split=2,
             max_features="sqrt",
             n_jobs=-1,
             random_state=SEED,
-            n_estimators=500,
+            n_estimators=110,
         )
 
     @staticmethod
@@ -83,7 +81,8 @@ class Drugs:
                 ("date_cleaner", DateCleaner()),
                 ("percentage_encoder", PercentageEncoder()),
                 ("one_hot_encoder", OneHotEncoder()),
-                ("target_encoder", TargetEncoder()),
+                ("binary_encoder", BinaryEncoder()),
+                ("target_encoder", TargetEncoderCV()),
                 ("description_encoder", DescriptionEncoder()),
                 ("drop_duplicates", DropDuplicatesCleaner()),
                 ("drop_columns", DropColumnsCleaner()),
@@ -102,29 +101,15 @@ class Drugs:
         train = df.merge(df_ingredient)
 
         x_train = self._processing_pipe.fit_transform(train, train[PRICE])
-        self._model.fit(x_train[self.selected_features], y_train)
+        self._model.fit(x_train, y_train)
 
         self.logger.info("training finished!")
 
     def predict(self, df: pd.DataFrame, df_ingredient: pd.DataFrame) -> pd.DataFrame:
         df_copy = df.merge(df_ingredient)
         x = self._processing_pipe.transform(df_copy)
-        prices = self._model.predict(x[self.selected_features])
+        prices = self._model.predict(x)
         return pd.DataFrame.from_dict({DRUG_ID: df[DRUG_ID], PRICE: prices})
-
-    def plot_learning_curve(self):
-        results = self._model.evals_result()
-        epochs = len(results["validation_0"]["rmse"])
-        x_axis = range(0, epochs)
-
-        fig, ax = plt.subplots()
-        ax.plot(x_axis, results["validation_0"]["rmse"], label="Train")
-        ax.plot(x_axis, results["validation_1"]["rmse"], label="Val")
-        ax.legend()
-        plt.xlabel("Epochs")
-        plt.ylabel("RMSE")
-        plt.title("XGBoost learning curve")
-        plt.show()
 
     def save_artifacts(self, output_dir: str) -> None:
         joblib.dump(

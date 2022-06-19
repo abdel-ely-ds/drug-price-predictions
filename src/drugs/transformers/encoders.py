@@ -94,9 +94,9 @@ class TargetEncoder(BaseEstimator, TransformerMixin):
     def __init__(
         self,
         columns: List[str] = None,
-        noise_level: float = 1.00,
+        noise_level: float = 0.01,
         min_samples_leaf: int = 1,
-        smoothing: int = 1,
+        smoothing: int = 6,
     ):
         self.columns = HIGH_CARD_COLUMNS if columns is None else columns
         self.noise_level = noise_level
@@ -145,9 +145,9 @@ class TargetEncoderCV(BaseEstimator, TransformerMixin):
         self,
         columns: List[str] = None,
         n_splits=3,
-        noise_level: float = 1.00,
+        noise_level: float = 0.01,
         min_samples_leaf: int = 1,
-        smoothing: int = 1,
+        smoothing: int = 6,
     ):
         self.columns = HIGH_CARD_COLUMNS if columns is None else columns
         self.n_splits = n_splits
@@ -215,7 +215,9 @@ class BinaryEncoder(BaseEstimator, TransformerMixin):
     def transform(self, x: pd.DataFrame, y: pd.Series = None):
         df_copy = x.copy()
         for col, s in zip(self.columns, self.strs_to_check):
-            df_copy[col + "_feature"] = df_copy[col].apply(lambda x: 1 if s in x else 0)
+            df_copy[col + "_feature"] = df_copy[col].apply(
+                lambda val: 1 if s in val else 0
+            )
         return df_copy
 
     def fit_transform(self, x: pd.DataFrame, y=None, **fit_params):

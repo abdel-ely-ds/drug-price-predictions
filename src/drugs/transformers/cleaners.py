@@ -10,6 +10,7 @@ from drugs.utils.constants import (
     DRUG_ID,
     HIGH_CARD_COLUMNS,
     PHARMACY_COLUMN,
+    SELECTED_FEATURES,
     TEXT_COLUMNS,
     YEAR,
 )
@@ -114,14 +115,15 @@ class DropColumnsCleaner(BaseEstimator, TransformerMixin):
     """
 
     def __init__(self):
-        self.columns = None
+        self.columns = SELECTED_FEATURES
+        self.drop_columns = None
 
     def fit(self, x, y: pd.Series = None):
-        self.columns = [col for col in x.columns if "feature" not in col]
+        self.drop_columns = [col for col in x.columns if col not in self.columns]
         return self
 
     def transform(self, x: pd.DataFrame, y: pd.Series = None):
-        return x.drop(columns=self.columns)
+        return x.drop(columns=self.drop_columns)
 
     def fit_transform(self, x: pd.DataFrame, y: pd.Series = None, **fit_params):
         return self.fit(x, y).transform(x, y)
