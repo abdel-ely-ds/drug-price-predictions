@@ -71,10 +71,9 @@ Project Organization
     ├── LICENSE            <- MIT License.
     ├── README.md          <- README of the project.
     ├── data               <- Raw data
-    ├── src                <- source code for training and predicting bots
+    ├── src                <- source code for training and predicting drug prices
     ├── notebooks          <- Jupyter notebooks
     ├── requirements.txt   <- The requirements file contains all the necessary libs to run the project
-    ├── src                <- Source code for the project.
     ├── tests              <- tests forlder
     └── noxfile.py         <- black, build, tests               
 
