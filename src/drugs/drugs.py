@@ -44,7 +44,6 @@ class Drugs:
         self,
         model: RandomForestRegressor = None,
         processing_pipeline: Pipeline = None,
-        selected_features: List[str] = None,
     ):
         self._model = self._make_model() if model is None else model
         self._processing_pipe = (
