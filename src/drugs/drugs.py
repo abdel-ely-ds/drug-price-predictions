@@ -42,7 +42,7 @@ class Drugs:
 
     def __init__(
         self,
-        model=None,
+        model: RandomForestRegressor = None,
         processing_pipeline: Pipeline = None,
         selected_features: List[str] = None,
     ):
