@@ -78,35 +78,6 @@ Project Organization
     └── noxfile.py         <- black, build, tests               
 
 --------
-
-## Guidelines
-
-Build a machine learning pipeline to train a model and generate predictions for the test set. We expect an application layout, not notebooks (but feel free to also share your notebooks if you want). Structure your code so that it can be packaged and deployed to production. Think that your code will be the first iteration of a pipeline the company will use in production.
-
-You are free to define appropriate performance metrics that fit the problem and chosen algorithm.
-
-Please modify `README.md` to add:
-
-1. Instructions on how to run your code.
-2. A paragraph or two about what algorithm was chosen for which problem, why (including pros/cons) and what you are particularly proud of in your implementation, and why.
-3. Overall performance of your algorithm(s).
-
-## Evaluation criteria
-
-- **Code quality**: code is written once but read many times. Please make sure that your code is well-documented, and is free of programmatic and stylistic errors.
-- **Reproducibility and replicability**: We should be able to reproduce your work and achieve the same results.
-
-Evaluation of your submission will be based on the following criteria:
-
-1. Did you follow the instructions for submission?
-2. Can we package and deploy your code to production?
-3. Did you apply an appropriate machine learning algorithm for the problem and why you have chosen it?
-4. What features in the data set were used and why?
-5. What design decisions did you make when designing your models? Why (i.e. were they explained)?
-6. Did you separate any concerns in your application? Why or why not?
-
-There are many ways and algorithms to solve these questions; we ask that you approach them in a way that showcases one of your strengths. We're happy to tweak the requirements slightly if it helps you show off one of your strengths.
-
 ## Files & Field Descriptions
 
 You'll find five CSV files:
@@ -164,4 +135,3 @@ This file is here to help you and provide some feature engineering on the drug l
 
 **Note:** This data has duplicate records and some descriptions in `drugs_train.csv` or `drugs_test.csv` might not be present in this file.
 
-Good luck.
